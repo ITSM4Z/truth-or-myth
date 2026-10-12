@@ -7,7 +7,6 @@ import './App.css'
 function App() {
   const [currentScreen, setCurrentScreen] = useState("pregame")
   const [playerName, setPlayerName] = useState("")
-  const [timeElapsed, setTimeElapsed] = useState(0)
   const [finalTime, setFinalTime] = useState(0);
   const [finalScore, setFinalScore] = useState(0);
   const [playerAnswers, setPlayerAnswers] = useState([]);
@@ -40,11 +39,14 @@ function App() {
       />;
       break;
     default:
-      screenToDisplay = <div>Error: Unknown Screen</div>
+      screenToDisplay = <div>خطأ: شاشة غير معروفة</div>
   }
 
   return (
-      <div className="min-h-screen bg-[#2a636d] flex items-center justify-center font-sans">
+      <div 
+        className="min-h-screen w-full bg-[#2a636d] bg-cover bg-center bg-no-repeat flex items-center justify-center font-brand p-4"
+        style={{ backgroundImage: `url('/src/assets/Background.png')` }}
+      >
         {screenToDisplay}
       </div>
     );
