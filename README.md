@@ -70,5 +70,5 @@ If you don't configure Supabase, the game still runs completely fine client-side
 ## Credits
 
 Created for the **Mental Health Forum (لكل صوت أثر)** in collaboration with:
-- Umm Al-Qura University Student Clubs (English Club, Computer Club, Translation Club)
+- Umm Al-Qura University Student Clubs (Engineering Club, Computer Club, Translation Club)
 - Tuwaiq Club
