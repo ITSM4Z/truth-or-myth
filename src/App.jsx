@@ -8,6 +8,9 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState("pregame")
   const [playerName, setPlayerName] = useState("")
   const [timeElapsed, setTimeElapsed] = useState(0)
+  const [finalTime, setFinalTime] = useState(0);
+  const [finalScore, setFinalScore] = useState(0);
+  const [playerAnswers, setPlayerAnswers] = useState([]);
 
 
   let screenToDisplay;
@@ -15,16 +18,26 @@ function App() {
   switch (currentScreen) {
     case "pregame":
       screenToDisplay = <Pregame
-      setCurrentScreen={setCurrentScreen}
-      playerName={playerName}
-      setPlayerName={setPlayerName}
+        setCurrentScreen={setCurrentScreen}
+        playerName={playerName}
+        setPlayerName={setPlayerName}
       />;
       break;
     case "ingame":
-      screenToDisplay = <Ingame setCurrentScreen="{setCurrentScreen}"/>;
+      screenToDisplay = <Ingame 
+        setCurrentScreen={setCurrentScreen}
+        setFinalTime={setFinalTime}
+        setFinalScore={setFinalScore}
+        setPlayerAnswers={setPlayerAnswers}
+      />;
       break;
     case "postgame":
-      screenToDisplay = <Postgame setCurrentScreen="{setCurrentScreen}"/>;
+      screenToDisplay = <Postgame 
+        playerName={playerName}
+        finalScore={finalScore}
+        finalTime={finalTime}
+        playerAnswers={playerAnswers}
+      />;
       break;
     default:
       screenToDisplay = <div>Error: Unknown Screen</div>

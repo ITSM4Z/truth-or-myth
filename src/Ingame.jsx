@@ -40,7 +40,7 @@ function DroppableContainer({ id, title, items }) {
 }
 
 // Main component
-export function Ingame({ setCurrentScreen }) {
+export function Ingame({ setCurrentScreen, setFinalTime, setFinalScore, setPlayerAnswers }) {
     const [timeElapsed, setTimeElapsed] = useState(0);
     
     // State now tracks where each item currently lives using the "container" property
@@ -71,6 +71,18 @@ export function Ingame({ setCurrentScreen }) {
                 statement.id === active.id ? { ...statement, container: over.id } : statement
             )
         );
+    }
+
+    function handleSubmit() {
+        const score = statements.filter(
+            (statement) => statement.container === statement.correctAnswer
+        ).length;
+
+        setFinalScore(score);
+        setFinalTime(timeElapsed);
+        setPlayerAnswers(statements);
+
+        setCurrentScreen("postgame");
     }
 
     const minutes = String(Math.floor(timeElapsed / 60)).padStart(2, '0');
@@ -117,7 +129,7 @@ export function Ingame({ setCurrentScreen }) {
 
             <button 
                 className="mt-8 bg-[#2a636d] text-white px-8 py-3 rounded text-lg font-bold hover:bg-[#0c272c] self-center transition-colors"
-                onClick={() => setCurrentScreen("postgame")}
+                onClick={handleSubmit}
             >
                 تسليم
             </button>
