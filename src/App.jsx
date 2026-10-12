@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Pregame } from './Pregame'
 import { Ingame } from './Ingame'
 import { Postgame } from './Postgame'
+import { LeaderboardScreen } from './LeaderboardScreen'
 import './App.css'
 
 function App() {
@@ -36,6 +37,13 @@ function App() {
         finalScore={finalScore}
         finalTime={finalTime}
         playerAnswers={playerAnswers}
+        setCurrentScreen={setCurrentScreen}
+        setPlayerName={setPlayerName}
+      />;
+      break;
+    case "leaderboard":
+      screenToDisplay = <LeaderboardScreen 
+        setCurrentScreen={setCurrentScreen}
       />;
       break;
     default:

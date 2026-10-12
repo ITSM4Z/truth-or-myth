@@ -82,6 +82,15 @@ export function Pregame({ setCurrentScreen, playerName, setPlayerName }) {
                 >
                     ابدأ اللعبة
                 </button>
+
+                {/* Leaderboard View Button */}
+                <button
+                    className="w-full max-w-sm mt-3 bg-white text-[#006471] py-3 px-8 rounded-xl text-base font-bold border-2 border-[#006471] hover:bg-teal-50 active:scale-[0.99] transition-all shadow-xs flex items-center justify-center gap-2"
+                    onClick={() => setCurrentScreen("leaderboard")}
+                >
+                    <span>🏆</span>
+                    <span>عرض لوحة المتصدرين</span>
+                </button>
             </div>
         </div>
     );
