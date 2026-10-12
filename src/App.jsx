@@ -1,11 +1,30 @@
 import { useState } from 'react'
+import { Pregame } from './Pregame'
+import { Ingame } from './Ingame'
+import { Postgame } from './Postgame'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentScreen, setCurrentScreen] = useState("pregame")
+
+  let screenToDisplay;
+
+  switch (currentScreen) {
+    case "pregame":
+      screenToDisplay = Pregame();
+      break;
+    case "ingame":
+      screenToDisplay = Ingame();
+      break;
+    case "postgame":
+      screenToDisplay = Postgame();
+      break;
+    default:
+      //An error that tells the current game state is unknown
+  }
 
   return (
     <>
