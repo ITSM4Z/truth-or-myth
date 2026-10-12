@@ -7,6 +7,8 @@ import './App.css'
 function App() {
   const [currentScreen, setCurrentScreen] = useState("pregame")
   const [playerName, setPlayerName] = useState("")
+  const [timeElapsed, setTimeElapsed] = useState(0)
+
 
   let screenToDisplay;
 
@@ -19,10 +21,10 @@ function App() {
       />;
       break;
     case "ingame":
-      screenToDisplay = Ingame();
+      screenToDisplay = <Ingame setCurrentScreen="{setCurrentScreen}"/>;
       break;
     case "postgame":
-      screenToDisplay = Postgame();
+      screenToDisplay = <Postgame setCurrentScreen="{setCurrentScreen}"/>;
       break;
     default:
       screenToDisplay = <div>Error: Unknown Screen</div>
