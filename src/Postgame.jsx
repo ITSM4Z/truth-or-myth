@@ -27,6 +27,31 @@ useEffect(() => {
     }, [playerName, finalScore, finalTime]);
 
 export function Postgame({ playerName, finalScore, finalTime, playerAnswers }) {
+    useEffect(() => {
+        async function saveScore() {
+            // DEPLOYMENT INSTRUCTIONS: 
+            // Just uncomment this block AFTER putting the creds in the .env file and update 'leaderboard' to match the actual table name
+            
+            /*
+            const { data, error } = await supabase
+                .from('leaderboard')
+                .insert([
+                    { 
+                        player_name: playerName, 
+                        score: finalScore, 
+                        time_seconds: finalTime 
+                    }
+                ]);
+
+            if (error) console.error("Error saving score:", error);
+            else console.log("Score saved successfully!", data);
+            */
+           console.log("Placeholder: Score ready to be sent to DB");
+        }
+
+        saveScore();
+    }, [playerName, finalScore, finalTime]);
+
     const minutes = String(Math.floor(finalTime / 60)).padStart(2, '0');
     const seconds = String(finalTime % 60).padStart(2, '0');
 
