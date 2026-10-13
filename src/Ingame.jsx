@@ -80,32 +80,6 @@ function DraggableFlashcard({ id, text, isTop }) {
     );
 }
 
-// Draggable card inside Fact or Myth piles (allows dragging out to other pile or back to deck)
-function DraggablePileCard({ item }) {
-    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-        id: item.id,
-    });
-
-    return (
-        <div
-            ref={setNodeRef}
-            {...listeners}
-            {...attributes}
-            style={{ touchAction: 'none' }}
-            className={`w-full p-3 rounded-xl border-2 bg-white shadow-sm text-center font-bold text-xs sm:text-sm text-[#0c272c] select-none transition-all cursor-grab active:cursor-grabbing hover:border-[#358b9a] hover:shadow-md hover:-translate-y-0.5 ${
-                isDragging
-                    ? 'opacity-0 pointer-events-none'
-                    : 'border-[#9f895c]/60 hover:bg-teal-50/40'
-            }`}
-            dir="rtl"
-        >
-            <p className="line-clamp-2 leading-snug">{item.text}</p>
-            <span className="text-[10px] text-gray-400 font-normal mt-1 block">
-                اسحب لإعادة التصنيف
-            </span>
-        </div>
-    );
-}
 
 // Droppable deck container so users can drag cards back to the deck from piles
 function DroppableDeck({ unassigned, currentCard, nextCard }) {
@@ -165,39 +139,145 @@ function DroppableDeck({ unassigned, currentCard, nextCard }) {
     );
 }
 
-// Droppable pile zone (حقيقة or خرافة) with scrollable draggable cards
+// Droppable pile zone (حقيقة or خرافة) with stacked flashcard pile
 function DroppablePile({ id, title, items }) {
     const { isOver, setNodeRef } = useDroppable({ id });
+    const [showModal, setShowModal] = useState(false);
+
+    const latestCard = items[0] || null;
+    const secondCard = items[1] || null;
+    const thirdCard = items[2] || null;
 
     return (
         <div
             ref={setNodeRef}
-            className={`p-4 sm:p-5 rounded-2xl min-h-[340px] md:min-h-[380px] border-2 border-dashed flex flex-col items-center transition-all ${
+            className={`p-4 sm:p-5 rounded-2xl min-h-[340px] md:min-h-[380px] border-2 transition-all flex flex-col justify-between items-center ${
                 isOver
-                    ? 'border-[#358b9a] bg-teal-50/80 scale-[1.01] ring-2 ring-[#358b9a]/20'
-                    : 'border-[#9f895c]/50 bg-gray-50/60'
+                    ? 'border-[#358b9a] bg-teal-50/70 scale-[1.01] ring-2 ring-[#358b9a]/20'
+                    : 'border-2 border-dashed border-[#9f895c]/50 bg-gray-50/60'
             }`}
         >
+            {/* Header */}
             <div className="flex justify-between items-center w-full mb-3 px-1">
-                <h3 className="font-bold text-base sm:text-lg text-[#0c272c]">{title}</h3>
+                <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-base sm:text-lg text-[#0c272c]">{title}</h3>
+                    {items.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setShowModal(true)}
+                            className="text-[11px] text-[#358b9a] hover:text-[#0c272c] hover:underline font-semibold bg-white/80 px-2 py-0.5 rounded-md border border-[#358b9a]/20 shadow-xs cursor-pointer transition-colors"
+                            title="استعراض جميع البطاقات في هذا الصندوق"
+                        >
+                            عرض الكل ({items.length})
+                        </button>
+                    )}
+                </div>
                 <span className="text-xs font-bold text-[#358b9a] bg-white px-2.5 py-0.5 rounded-full border border-[#358b9a]/30 shadow-xs">
                     {items.length} {items.length === 1 ? 'بطاقة' : 'بطاقات'}
                 </span>
             </div>
 
-            <div className="w-full flex-grow flex flex-col items-center justify-start py-1">
+            {/* Stack Area */}
+            <div className="relative w-full flex-grow flex items-center justify-center min-h-[160px] my-auto">
                 {items.length === 0 ? (
-                    <div className="flex-grow flex items-center justify-center text-gray-400 text-xs sm:text-sm py-12">
+                    <div className="flex-grow flex flex-col items-center justify-center text-gray-400 text-xs sm:text-sm py-10 select-none">
+                        <div className="w-10 h-10 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center mb-2 text-lg text-gray-400 font-bold">
+                            +
+                        </div>
                         اسحب البطاقة إلى هنا
                     </div>
                 ) : (
-                    <div className="w-full flex flex-col gap-2.5 max-h-[260px] md:max-h-[280px] overflow-y-auto px-1 py-1">
-                        {items.map((item) => (
-                            <DraggablePileCard key={item.id} item={item} />
-                        ))}
-                    </div>
+                    <>
+                        {/* 3rd card in stack (deep depth layer when 3+ elements) */}
+                        {thirdCard && (
+                            <div
+                                className="absolute w-full min-h-[130px] p-4 sm:p-5 rounded-2xl border-2 border-gray-200 bg-white shadow-xs flex items-center justify-center text-center font-bold text-sm sm:text-base text-[#0c272c]/30 select-none scale-[0.92] translate-y-4 z-0 pointer-events-none"
+                                dir="rtl"
+                            >
+                                {thirdCard.text}
+                            </div>
+                        )}
+
+                        {/* 2nd card in stack (depth layer when 2+ elements) */}
+                        {secondCard && (
+                            <div
+                                className="absolute w-full min-h-[130px] p-4 sm:p-5 rounded-2xl border-2 border-gray-200 bg-white shadow-sm flex items-center justify-center text-center font-bold text-sm sm:text-base text-[#0c272c]/50 select-none scale-[0.96] translate-y-2 z-10 pointer-events-none"
+                                dir="rtl"
+                            >
+                                {secondCard.text}
+                            </div>
+                        )}
+
+                        {/* Top active card in stack (LATEST card - draggable) */}
+                        <div className="w-full relative z-20">
+                            <DraggableFlashcard
+                                key={latestCard.id}
+                                id={latestCard.id}
+                                text={latestCard.text}
+                                isTop={true}
+                            />
+                        </div>
+                    </>
                 )}
             </div>
+
+            {/* Footer hint */}
+            <div className="text-xs text-gray-400 text-center mt-2 font-normal">
+                {latestCard
+                    ? "آخر بطاقة مضافة (اسحب لتعديل التصنيف)"
+                    : `صندوق ${title}`}
+            </div>
+
+            {/* Modal to view all cards in this pile */}
+            {showModal && (
+                <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+                    onClick={() => setShowModal(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl border-2 border-[#9f895c] max-w-md w-full max-h-[80vh] flex flex-col p-5"
+                        onClick={(e) => e.stopPropagation()}
+                        dir="rtl"
+                    >
+                        <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-3">
+                            <h4 className="font-bold text-lg text-[#0c272c]">
+                                بطاقات {title} ({items.length})
+                            </h4>
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="text-gray-400 hover:text-gray-700 text-lg font-bold px-2 py-0.5 rounded cursor-pointer"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="overflow-y-auto space-y-2.5 flex-grow pr-1">
+                            {items.map((item, idx) => (
+                                <div
+                                    key={item.id}
+                                    className={`p-3 rounded-xl border text-sm font-bold text-[#0c272c] ${
+                                        idx === 0
+                                            ? 'border-[#358b9a] bg-teal-50/50 shadow-xs'
+                                            : 'border-gray-200 bg-gray-50'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-[10px] text-gray-400 font-normal">
+                                            {idx === 0 ? '★ آخر بطاقة مضافة' : `بطاقة #${items.length - idx}`}
+                                        </span>
+                                    </div>
+                                    <p className="leading-snug">{item.text}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="mt-4 bg-[#006471] text-white py-2 px-4 rounded-xl font-bold hover:bg-[#0c272c] transition-colors self-center text-sm"
+                        >
+                            إغلاق
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -259,16 +339,9 @@ export function Ingame({ setCurrentScreen, setFinalTime, setFinalScore, setPlaye
             const activeItem = prev.find((s) => s.id === active.id);
             if (!activeItem || activeItem.container === targetContainer) return prev;
 
-            // If dragged back to the deck (unassigned), place at the start so it becomes active card
-            if (targetContainer === 'unassigned') {
-                const others = prev.filter((s) => s.id !== active.id);
-                return [{ ...activeItem, container: 'unassigned' }, ...others];
-            }
-
-            // Otherwise move between piles or from unassigned to a pile
-            return prev.map((statement) =>
-                statement.id === active.id ? { ...statement, container: targetContainer } : statement
-            );
+            // Place activeItem at the front so it is ALWAYS the latest card on top of the target container
+            const others = prev.filter((s) => s.id !== active.id);
+            return [{ ...activeItem, container: targetContainer }, ...others];
         });
     }
 
@@ -349,21 +422,9 @@ export function Ingame({ setCurrentScreen, setFinalTime, setFinalScore, setPlaye
                     ? createPortal(
                           <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
                               {activeStatement ? (
-                                  activeStatement.container === 'unassigned' ? (
-                                      <div className="w-full pointer-events-none select-none">
-                                          <FlashcardView text={activeStatement.text} isDragging={true} />
-                                      </div>
-                                  ) : (
-                                      <div
-                                          className="w-full p-3 rounded-xl border-2 border-[#358b9a] bg-white shadow-2xl text-center font-bold text-xs sm:text-sm text-[#0c272c] ring-4 ring-[#358b9a]/20 cursor-grabbing pointer-events-none select-none"
-                                          dir="rtl"
-                                      >
-                                          <p className="line-clamp-2 leading-snug">{activeStatement.text}</p>
-                                          <span className="text-[10px] text-[#358b9a] font-semibold mt-1 block">
-                                              {activeStatement.container === 'fact' ? 'من: حقيقة' : 'من: خرافة'}
-                                          </span>
-                                      </div>
-                                  )
+                                  <div className="w-full pointer-events-none select-none">
+                                      <FlashcardView text={activeStatement.text} isDragging={true} />
+                                  </div>
                               ) : null}
                           </DragOverlay>,
                           document.body
