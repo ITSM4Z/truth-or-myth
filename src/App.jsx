@@ -3,6 +3,7 @@ import { Pregame } from './Pregame'
 import { Ingame } from './Ingame'
 import { Postgame } from './Postgame'
 import { LeaderboardScreen } from './LeaderboardScreen'
+import bgImage from './assets/Background.png'
 import './App.css'
 
 function App() {
@@ -53,7 +54,7 @@ function App() {
   return (
       <div 
         className="min-h-screen w-full bg-[#2a636d] bg-cover bg-center bg-no-repeat flex items-center justify-center font-brand p-4"
-        style={{ backgroundImage: `url('/src/assets/Background.png')` }}
+        style={{ backgroundImage: `url(${bgImage})` }}
       >
         {screenToDisplay}
       </div>
