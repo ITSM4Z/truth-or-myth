@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
     DndContext,
     DragOverlay,
@@ -13,6 +14,7 @@ import {
     useDraggable,
     useDroppable,
 } from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { initialStatementsData } from './statementsData';
 
 // Utility to randomize the statements order
@@ -43,12 +45,12 @@ function customCollisionDetection(args) {
 function FlashcardView({ text, isDragging = false, isPlaceholder = false }) {
     return (
         <div
-            className={`w-full min-h-[120px] p-4 rounded-xl border-2 border-[#9f895c] bg-white shadow-md flex items-center justify-center text-center font-bold text-sm sm:text-base text-[#0c272c] select-none leading-relaxed ${
+            className={`w-full min-h-[130px] p-4 sm:p-5 rounded-2xl border-2 bg-white flex items-center justify-center text-center font-bold text-sm sm:text-base text-[#0c272c] select-none leading-relaxed transition-all ${
                 isDragging
-                    ? 'shadow-2xl scale-105 rotate-1 border-[#358b9a] cursor-grabbing ring-4 ring-[#358b9a]/20'
+                    ? 'shadow-2xl border-[#358b9a] cursor-grabbing ring-4 ring-[#358b9a]/20'
                     : isPlaceholder
-                    ? 'opacity-30 border-dashed'
-                    : 'hover:shadow-lg cursor-grab active:cursor-grabbing'
+                    ? 'opacity-0 pointer-events-none'
+                    : 'border-[#9f895c] shadow-md hover:shadow-lg cursor-grab active:cursor-grabbing'
             }`}
             style={{ touchAction: 'none' }}
             dir="rtl"
@@ -90,9 +92,9 @@ function DraggablePileCard({ item }) {
             {...listeners}
             {...attributes}
             style={{ touchAction: 'none' }}
-            className={`w-full p-2.5 rounded-xl border-2 bg-white shadow-sm text-center font-bold text-xs sm:text-sm text-[#0c272c] select-none transition-all cursor-grab active:cursor-grabbing hover:border-[#358b9a] hover:shadow-md hover:-translate-y-0.5 ${
+            className={`w-full p-3 rounded-xl border-2 bg-white shadow-sm text-center font-bold text-xs sm:text-sm text-[#0c272c] select-none transition-all cursor-grab active:cursor-grabbing hover:border-[#358b9a] hover:shadow-md hover:-translate-y-0.5 ${
                 isDragging
-                    ? 'opacity-30 border-dashed border-[#358b9a]'
+                    ? 'opacity-0 pointer-events-none'
                     : 'border-[#9f895c]/60 hover:bg-teal-50/40'
             }`}
             dir="rtl"
@@ -112,26 +114,26 @@ function DroppableDeck({ unassigned, currentCard, nextCard }) {
     return (
         <div
             ref={setNodeRef}
-            className={`p-3.5 sm:p-4 rounded-2xl min-h-[290px] border-2 transition-all flex flex-col items-center ${
+            className={`p-4 sm:p-5 rounded-2xl min-h-[340px] md:min-h-[380px] border-2 transition-all flex flex-col justify-between items-center ${
                 isOver
                     ? 'border-[#358b9a] bg-teal-50/70 scale-[1.01] ring-2 ring-[#358b9a]/20'
                     : 'border-gray-200 bg-gray-50/80'
             }`}
         >
             <div className="flex justify-between items-center w-full mb-3 px-1">
-                <h3 className="font-bold text-center text-[#0c272c] text-base">البطاقة الحالية</h3>
-                <span className="text-xs font-semibold bg-[#9f895c]/20 text-[#0c272c] px-2.5 py-0.5 rounded-full">
+                <h3 className="font-bold text-[#0c272c] text-base sm:text-lg">البطاقة الحالية</h3>
+                <span className="text-xs font-semibold bg-[#9f895c]/20 text-[#0c272c] px-3 py-1 rounded-full">
                     متبقي: {unassigned.length}
                 </span>
             </div>
 
-            <div className="relative w-full max-w-xs flex-grow flex items-center justify-center min-h-[150px]">
+            <div className="relative w-full flex-grow flex items-center justify-center min-h-[160px] my-auto">
                 {currentCard ? (
                     <>
                         {/* Preview card stacked underneath */}
                         {nextCard && (
                             <div
-                                className="absolute w-full min-h-[120px] p-4 rounded-xl border-2 border-gray-300 bg-gray-100 shadow-sm flex items-center justify-center text-center font-bold text-sm sm:text-base text-gray-400 select-none scale-[0.96] translate-y-2 z-0 pointer-events-none"
+                                className="absolute w-full min-h-[130px] p-4 sm:p-5 rounded-2xl border-2 border-gray-200 bg-white shadow-sm flex items-center justify-center text-center font-bold text-sm sm:text-base text-[#0c272c]/40 select-none scale-[0.96] translate-y-2 z-0 pointer-events-none"
                                 dir="rtl"
                             >
                                 {nextCard.text}
@@ -147,13 +149,17 @@ function DroppableDeck({ unassigned, currentCard, nextCard }) {
                         />
                     </>
                 ) : (
-                    <div className="text-center text-green-700 font-bold p-4 bg-green-50 rounded-xl border border-green-200 text-sm">
+                    <div className="text-center text-green-700 font-bold p-5 bg-green-50 rounded-2xl border border-green-200 text-sm">
                         ✓ تم تصنيف جميع البطاقات!
-                        <p className="text-xs text-gray-500 font-normal mt-1">
+                        <p className="text-xs text-gray-500 font-normal mt-1.5">
                             يمكنك سحب أي بطاقة من الصناديق لإعادة ترتيبها
                         </p>
                     </div>
                 )}
+            </div>
+
+            <div className="text-xs text-gray-400 text-center mt-2 font-normal">
+                {currentCard ? "اسحب البطاقة إلى حقيقة أو خرافة" : "يمكنك تعديل الإجابات بالسحب"}
             </div>
         </div>
     );
@@ -166,7 +172,7 @@ function DroppablePile({ id, title, items }) {
     return (
         <div
             ref={setNodeRef}
-            className={`p-3.5 sm:p-4 rounded-2xl min-h-[290px] border-2 border-dashed flex flex-col items-center transition-all ${
+            className={`p-4 sm:p-5 rounded-2xl min-h-[340px] md:min-h-[380px] border-2 border-dashed flex flex-col items-center transition-all ${
                 isOver
                     ? 'border-[#358b9a] bg-teal-50/80 scale-[1.01] ring-2 ring-[#358b9a]/20'
                     : 'border-[#9f895c]/50 bg-gray-50/60'
@@ -181,11 +187,11 @@ function DroppablePile({ id, title, items }) {
 
             <div className="w-full flex-grow flex flex-col items-center justify-start py-1">
                 {items.length === 0 ? (
-                    <div className="flex-grow flex items-center justify-center text-gray-400 text-xs sm:text-sm py-10">
+                    <div className="flex-grow flex items-center justify-center text-gray-400 text-xs sm:text-sm py-12">
                         اسحب البطاقة إلى هنا
                     </div>
                 ) : (
-                    <div className="w-full flex flex-col gap-2 max-h-[220px] overflow-y-auto px-1 py-1">
+                    <div className="w-full flex flex-col gap-2.5 max-h-[260px] md:max-h-[280px] overflow-y-auto px-1 py-1">
                         {items.map((item) => (
                             <DraggablePileCard key={item.id} item={item} />
                         ))}
@@ -298,11 +304,11 @@ export function Ingame({ setCurrentScreen, setFinalTime, setFinalScore, setPlaye
     const seconds = String(timeElapsed % 60).padStart(2, '0');
 
     return (
-        <div className="w-full max-w-4xl min-h-[75vh] bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border-2 border-[#9f895c]/40 p-5 sm:p-6 flex flex-col m-3">
+        <div className="w-full max-w-5xl xl:max-w-6xl bg-white rounded-3xl shadow-2xl border-2 border-[#9f895c]/40 p-5 sm:p-7 flex flex-col my-auto">
             {/* Top Bar */}
-            <div className="flex justify-between items-center border-b-2 border-[#9f895c]/40 pb-3 mb-5">
+            <div className="flex justify-between items-center border-b-2 border-[#9f895c]/40 pb-3.5 mb-5">
                 <h2 className="text-xl sm:text-2xl font-bold text-[#358b9a]">حقيقة أم خرافة؟</h2>
-                <div className="text-base sm:text-lg font-mono bg-[#0c272c] text-white px-3.5 py-1.5 rounded-xl shadow-inner" dir="ltr">
+                <div className="text-base sm:text-lg font-mono bg-[#0c272c] text-white px-4 py-1.5 rounded-xl shadow-inner tracking-wider" dir="ltr">
                     {minutes}:{seconds}
                 </div>
             </div>
@@ -315,7 +321,7 @@ export function Ingame({ setCurrentScreen, setFinalTime, setFinalScore, setPlaye
                 onDragEnd={handleDragEnd}
                 onDragCancel={handleDragCancel}
             >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 flex-grow">
                     {/* The Flashcard Deck (Droppable & Draggable) */}
                     <DroppableDeck
                         unassigned={unassigned}
@@ -324,7 +330,7 @@ export function Ingame({ setCurrentScreen, setFinalTime, setFinalScore, setPlaye
                     />
 
                     {/* The Droppable Fact and Myth piles */}
-                    <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <DroppablePile
                             id="fact"
                             title="حقيقة"
@@ -338,14 +344,31 @@ export function Ingame({ setCurrentScreen, setFinalTime, setFinalScore, setPlaye
                     </div>
                 </div>
 
-                {/* DragOverlay rendered in portal with pointer-events-none */}
-                <DragOverlay dropAnimation={null}>
-                    {activeStatement ? (
-                        <div className="w-[280px] sm:w-[300px] pointer-events-none select-none">
-                            <FlashcardView text={activeStatement.text} isDragging={true} />
-                        </div>
-                    ) : null}
-                </DragOverlay>
+                {/* DragOverlay rendered in portal to escape all containing blocks */}
+                {typeof document !== 'undefined'
+                    ? createPortal(
+                          <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
+                              {activeStatement ? (
+                                  activeStatement.container === 'unassigned' ? (
+                                      <div className="w-full pointer-events-none select-none">
+                                          <FlashcardView text={activeStatement.text} isDragging={true} />
+                                      </div>
+                                  ) : (
+                                      <div
+                                          className="w-full p-3 rounded-xl border-2 border-[#358b9a] bg-white shadow-2xl text-center font-bold text-xs sm:text-sm text-[#0c272c] ring-4 ring-[#358b9a]/20 cursor-grabbing pointer-events-none select-none"
+                                          dir="rtl"
+                                      >
+                                          <p className="line-clamp-2 leading-snug">{activeStatement.text}</p>
+                                          <span className="text-[10px] text-[#358b9a] font-semibold mt-1 block">
+                                              {activeStatement.container === 'fact' ? 'من: حقيقة' : 'من: خرافة'}
+                                          </span>
+                                      </div>
+                                  )
+                              ) : null}
+                          </DragOverlay>,
+                          document.body
+                      )
+                    : null}
             </DndContext>
 
             {/* Submission Section */}
